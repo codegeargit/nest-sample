@@ -7,10 +7,11 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './security/passport.jwt.strategy';
 import { UserRepository } from './repository/user.repository';
 import { UserService } from './user.service';
+import { UserAuthorityRepository } from './repository/user-authority.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserRepository]),
+    TypeOrmModule.forFeature([UserRepository, UserAuthorityRepository]),
     JwtModule.register({
       secret: 'SECRET_KEY',
       signOptions: {expiresIn: '300s'},

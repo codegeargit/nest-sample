@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Cat } from './cats/entity/cats.entity';
 import { AuthModule } from './auth/auth.module';
 import { User } from './auth/entity/user.entity';
+import { UserAuthority } from './auth/entity/user-authority.entity';
 
 
 @Module({
@@ -17,8 +18,9 @@ import { User } from './auth/entity/user.entity';
       username: 'root',
       password: 'root',
       database: 'test',
-      entities: [Cat, User],
-      synchronize: true,
+      entities: [Cat, User, UserAuthority],
+      synchronize: false,
+      logging: true
     }),
     CatsModule,
     AuthModule

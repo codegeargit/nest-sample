@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Put, UnauthorizedException } from '@nestjs/common';
 import { UserDTO } from './dto/user.dto';
-import { User } from './entity/user.entity';
+import { User } from '../domain/user.entity';
 import { UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
 import { Payload } from './security/payload.interface';

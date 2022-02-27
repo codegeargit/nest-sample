@@ -24,6 +24,7 @@ export class AuthService {
     }
 
     async validateUser(userDTO: UserDTO): Promise<{accessToken: string} | undefined> {
+        console.log('ENV :' +process.env.BACKEND_ENV);
         let userFind: User = await this.userService.findByFields({
             where: { username: userDTO.username }
         });

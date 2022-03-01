@@ -1,10 +1,12 @@
-import { HttpException, HttpStatus, Injectable, Put, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserDTO } from './dto/user.dto';
 import { User } from '../domain/user.entity';
 import { UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
 import { Payload } from './security/payload.interface';
 import { JwtService } from '@nestjs/jwt';
+
+const logger: Logger = new Logger('AuthService');
 
 @Injectable()
 export class AuthService {
@@ -14,13 +16,22 @@ export class AuthService {
     ){}
 
     async registerUser(newUser: UserDTO): Promise<UserDTO> {
-        let userFind: UserDTO = await this.userService.findByFields({ 
+        let userFind: UserDTO = await this.userService.findByFields({
             where: { username: newUser.username }
         });
         if(userFind) {
             throw new HttpException('Username aleady used!', HttpStatus.BAD_REQUEST);
         }
-        return await this.userService.save(newUser);
+        const registeredUser = await this.userService.save(newUser);
+        if(registeredUser){
+            logger.log('registered user is ' + JSON.stringify(registeredUser));
+            await this.userService.saveAuthority(registeredUser.id);
+        }else {
+            logger.log('register error user is ' + newUser.username);
+            throw new HttpException('Username register error!', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return registeredUser;
     }
 
     async validateUser(userDTO: UserDTO): Promise<{accessToken: string} | undefined> {
@@ -35,9 +46,9 @@ export class AuthService {
         if(!validatePassword) {
             throw new UnauthorizedException();
         }
-        
+
         this.convertInAuthorities(userFind);
-        
+
         const payload: Payload = { id: userFind.id, username: userFind.username, authorities: userFind.authorities };
         return {
             accessToken: this.jwtService.sign(payload)
